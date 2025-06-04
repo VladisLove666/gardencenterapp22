@@ -1,36 +1,37 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
-import '../models/user.dart';
+import 'package:gardencenterapppp/models/user.dart' as user;
 
 class AuthService {
-  static final SupabaseClient client = Supabase.instance.client;
+  final SupabaseClient _supabase = Supabase.instance.client;
 
-  static Future<bool> login(String phone, String password) async {
-    final response = await client.auth.signInWithPassword(
-      phone: phone,
-      password: password,
-    );
-
-    // Check if the user is authenticated
-    return response.user != null;
+  Future<void> signIn(String email, String password) async {
+    await _supabase.auth.signInWithPassword(email: email, password: password);
   }
 
-  static Future<bool> register(String firstName, String lastName, String phone, String password) async {
-    final response = await client.auth.signUp(
-      phone: phone,
-      password: password,
-    );
+  Future<void> signUp(String firstName, String email, String phone, String password) async {
+    await _supabase.auth.signUp(email: email, password: password, data: {
+      'firstName': firstName,
+      'phone': phone,
+    });
+  }
 
-    // Check if the user is created successfully
-    if (response.user != null) {
-      await client.from('users').insert({
-        'first_name': firstName,
-        'last_name': lastName,
-        'phone': phone,
-        'password': password, // Не храните пароль в базе данных!
-        'balance': 0,
-      });
-      return true;
+  Future<void> signOut() async {
+    await _supabase.auth.signOut();
+  }
+
+  Future<user.User?> getMe() async {
+    final currentUser = _supabase.auth.currentUser;
+
+    if (currentUser == null) {
+      return null;
     }
-    return false;
+
+    final data = await _supabase
+        .from('users')
+        .select('*, roles(*)')
+        .eq('id', currentUser.id)
+        .single();
+
+    return user.User.fromJson(data);
   }
 }

@@ -1,18 +1,22 @@
+import 'role.dart';
+
 class User {
-  final String id;
-  final String firstName;
-  final String lastName;
-  final String phone;
-  final String password; // Не храните пароль в модели!
-  final double balance;
+  String id;
+  String firstName;
+  String lastName;
+  String phone;
+  String email;
+  Role role;
+  bool isBanned;
 
   User({
     required this.id,
     required this.firstName,
     required this.lastName,
     required this.phone,
-    required this.password,
-    required this.balance,
+    required this.email,
+    required this.role,
+    this.isBanned = false,
   });
 
   factory User.fromJson(Map<String, dynamic> json) {
@@ -21,8 +25,21 @@ class User {
       firstName: json['first_name'],
       lastName: json['last_name'],
       phone: json['phone'],
-      password: json['password'], // Не храните пароль в модели!
-      balance: json['balance']?.toDouble() ?? 0.0,
+      email: json['email'],
+      role: Role.fromJson(json['roles']),
+      isBanned: json['is_banned'] ?? false,
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'first_name': firstName,
+      'last_name': lastName,
+      'phone': phone,
+      'email': email,
+      'roles': role.toJson(),
+      'is_banned': isBanned,
+    };
   }
 }

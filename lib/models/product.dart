@@ -1,9 +1,9 @@
 class Product {
-  final String id;
-  final String name;
-  final String description;
-  final double price;
-  final String categoryId;
+  String id;
+  String name;
+  String description;
+  double price;
+  String categoryId;
 
   Product({
     required this.id,
@@ -18,8 +18,18 @@ class Product {
       id: json['id'],
       name: json['name'],
       description: json['description'],
-      price: json['price']?.toDouble() ?? 0.0,
+      price: json['price'],
       categoryId: json['category_id'],
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'name': name,
+      'description': description,
+      'price': price,
+      'category_id': categoryId,
+    };
   }
 }

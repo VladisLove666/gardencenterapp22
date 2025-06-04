@@ -1,60 +1,48 @@
 import 'package:flutter/material.dart';
-import '../services/auth_service.dart';
+import 'package:gardencenterapppp/services/auth_service.dart';
 
-class RegistrationScreen extends StatefulWidget {
-  @override
-  _RegistrationScreenState createState() => _RegistrationScreenState();
-}
-
-class _RegistrationScreenState extends State<RegistrationScreen> {
-  final _firstNameController = TextEditingController();
-  final _lastNameController = TextEditingController();
-  final _phoneController = TextEditingController();
-  final _passwordController = TextEditingController();
-
-  void _register() async {
-    final result = await AuthService.register(
-      _firstNameController.text,
-      _lastNameController.text,
-      _phoneController.text,
-      _passwordController.text,
-    );
-    if (result) {
-      Navigator.pop(context);
-    } else {
-      // Обработка ошибки
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Ошибка регистрации')));
-    }
-  }
+class RegisterScreen extends StatelessWidget {
+  final TextEditingController nameController = TextEditingController();
+  final TextEditingController phoneController = TextEditingController();
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Регистрация')),
+      appBar: AppBar(title: const Text('Регистрация')),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
             TextField(
-              controller: _firstNameController,
+              controller: nameController,
               decoration: InputDecoration(labelText: 'Имя'),
             ),
             TextField(
-              controller: _lastNameController,
-              decoration: InputDecoration(labelText: 'Фамилия'),
+              controller: phoneController,
+              decoration: InputDecoration(labelText: 'Телефон'),
             ),
             TextField(
-              controller: _phoneController,
-              decoration: InputDecoration(labelText: 'Номер телефона'),
+              controller: emailController,
+              decoration: InputDecoration(labelText: 'Email'),
             ),
             TextField(
-              controller: _passwordController,
+              controller: passwordController,
               decoration: InputDecoration(labelText: 'Пароль'),
               obscureText: true,
             ),
             SizedBox(height: 20),
             ElevatedButton(
-              onPressed: _register,
+              onPressed: () async {
+                await AuthService().signUp(
+                  nameController.text,
+                  emailController.text,
+                  phoneController.text,
+                  passwordController.text,
+                );
+                // Navigate to the main screen
+              },
               child: Text('Зарегистрироваться'),
             ),
           ],

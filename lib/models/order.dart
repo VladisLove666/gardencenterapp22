@@ -1,8 +1,8 @@
 class Order {
-  final String id;
-  final String userId;
-  final String status;
-  final DateTime createdAt;
+  String id;
+  String userId;
+  String status;
+  DateTime createdAt;
 
   Order({
     required this.id,
@@ -18,5 +18,14 @@ class Order {
       status: json['status'],
       createdAt: DateTime.parse(json['created_at']),
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'user_id': userId,
+      'status': status,
+      'created_at': createdAt.toIso8601String(),
+    };
   }
 }

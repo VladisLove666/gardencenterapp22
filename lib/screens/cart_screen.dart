@@ -1,20 +1,44 @@
 import 'package:flutter/material.dart';
-import '../models/product.dart';
-import '../widgets/cart_item.dart';
+import 'package:gardencenterapppp/models/order.dart';
+import 'package:gardencenterapppp/services/order_service.dart';
+import 'package:provider/provider.dart';
+import 'package:gardencenterapppp/providers/auth_provider.dart';
 
 class CartScreen extends StatelessWidget {
-  final List<Product> cartItems;
-
-  const CartScreen({Key? key, required this.cartItems}) : super(key: key);
-
   @override
   Widget build(BuildContext context) {
+    final userId = Provider.of<AuthProvider>(context).user!.id;
+
     return Scaffold(
-      appBar: AppBar(title: Text('Корзина')),
-      body: ListView.builder(
-        itemCount: cartItems.length,
-        itemBuilder: (context, index) {
-          return CartItem(product: cartItems[index], quantity: 1); // Замените 1 на реальное количество
+      appBar: AppBar(title: const Text('Корзина')),
+      body: FutureBuilder<List<Order>>(
+        future: OrderService().getCartOrders(userId),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          if (snapshot.hasError) {
+            return Center(child: Text('Ошибка: ${snapshot.error}'));
+          }
+          if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return const Center(child: Text('Корзина пуста.'));
+          }
+
+          final orders = snapshot.data!;
+
+          return ListView.builder(
+            itemCount: orders.length,
+            itemBuilder: (context, index) {
+              final order = orders[index];
+              return ListTile(
+                title: Text('Заказ ${order.id}'),
+                subtitle: Text('Статус: ${order.status}'),
+                onTap: () {
+                  // Navigate to OrderDetailScreen
+                },
+              );
+            },
+          );
         },
       ),
     );

@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:gardencenterapppp/models/product.dart';
 import 'package:gardencenterapppp/services/product_service.dart';
 
-class ProductListScreen extends StatelessWidget {
+class ManageProductsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Товары')),
+      appBar: AppBar(title: const Text('Управление товарами')),
       body: FutureBuilder<List<Product>>(
         future: ProductService().getAll(),
         builder: (context, snapshot) {
@@ -29,9 +29,12 @@ class ProductListScreen extends StatelessWidget {
               return ListTile(
                 title: Text(product.name),
                 subtitle: Text('${product.price} ₽'),
-                onTap: () {
-                  // Navigate to ProductDetailScreen
-                },
+                trailing: IconButton(
+                  icon: Icon(Icons.edit),
+                  onPressed: () {
+                    // Navigate to EditProductScreen
+                  },
+                ),
               );
             },
           );

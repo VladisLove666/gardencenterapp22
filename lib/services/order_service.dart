@@ -1,27 +1,45 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
-import '../models/order.dart';
+import 'package:gardencenterapppp/models/order.dart';
 
 class OrderService {
-  static final SupabaseClient client = Supabase.instance.client;
+  final SupabaseClient _supabase = Supabase.instance.client;
 
-  static Future<List<Order>> getOrders(String userId) async {
-    final response = await client
-        .from('orders')
-        .select()
-        .eq('user_id', userId)
-        .execute();
-
-    if (response.error == null) {
-      final List<dynamic> data = response.data as List<dynamic>;
-      return data.map((json) => Order.fromJson(json)).toList();
-    } else {
-      // Обработка ошибки
-      print('Error fetching orders: ${response.error!.message}');
-      return [];
-    }
+  Future<List<Order>> getAll() async {
+    final data = await _supabase.from('orders').select('*');
+    return data.map((e) => Order.fromJson(e)).toList();
   }
-}
 
-extension on PostgrestFilterBuilder<PostgrestList> {
-  Future execute() async {}
+  Future<void> create(Order order) async {
+    await _supabase.from('orders').insert(order.toJson());
+  }
+
+  Future<void> update(Order order) async {
+    await _supabase.from('orders').update(order.toJson()).eq('id', order.id);
+  }
+
+  Future<void> delete(String id) async {
+    await _supabase.from('orders').delete().eq('id', id);
+  }
+
+  Future<List<Order>> getOrderHistory(String userId) async {
+    final data = await _supabase
+        .from('orders')
+        .select('*')
+        .eq('user_id', userId)
+        .order('created_at', ascending: false);
+
+    return data.map((e) => Order.fromJson(e)).toList();
+  }
+
+
+  Future<List<Order>> getCartOrders(String userId) async {
+    final data = await _supabase
+        .from('orders')
+        .select('*')
+        .eq('user_id', userId)
+        .eq('status', 'в корзине')
+        .order('created_at', ascending: false);
+
+    return data.map((e) => Order.fromJson(e)).toList();
+  }
 }

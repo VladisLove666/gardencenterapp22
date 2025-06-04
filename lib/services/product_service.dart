@@ -1,31 +1,23 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
-import '../models/product.dart';
+import 'package:gardencenterapppp/models/product.dart';
 
 class ProductService {
-  static final SupabaseClient client = Supabase.instance.client;
+  final SupabaseClient _supabase = Supabase.instance.client;
 
-  static Future<List<Product>> getProducts() async {
-    final response = await client.from('products').select().execute();
-    if (response.error == null) {
-      final List<dynamic> data = response.data;
-      return data.map((json) => Product.fromJson(json)).toList();
-    }
-    return [];
+  Future<List<Product>> getAll() async {
+    final data = await _supabase.from('products').select('*');
+    return data.map((e) => Product.fromJson(e)).toList();
   }
 
-  static Future<Product?> getProductById(String productId) async {
-    final response = await client.from('products').select().eq('id', productId).single().execute();
-    if (response.error == null) {
-      return Product.fromJson(response.data);
-    }
-    return null;
+  Future<void> create(Product product) async {
+    await _supabase.from('products').insert(product.toJson());
   }
-}
 
-extension on PostgrestTransformBuilder<PostgrestMap> {
-  Future execute() async {}
-}
+  Future<void> update(Product product) async {
+    await _supabase.from('products').update(product.toJson()).eq('id', product.id);
+  }
 
-extension on PostgrestFilterBuilder<PostgrestList> {
-  Future execute() async {}
+  Future<void> delete(String id) async {
+    await _supabase.from('products').delete().eq('id', id);
+  }
 }

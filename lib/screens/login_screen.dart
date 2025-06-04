@@ -1,63 +1,42 @@
 import 'package:flutter/material.dart';
-import 'registration_screen.dart';
-import 'home_screen.dart';
-import '../services/auth_service.dart';
+import 'package:gardencenterapppp/services/auth_service.dart';
+import 'package:provider/provider.dart';
+import 'package:gardencenterapppp/providers/auth_provider.dart';
 
-class LoginScreen extends StatefulWidget {
-  @override
-  _LoginScreenState createState() => _LoginScreenState();
-}
-
-class _LoginScreenState extends State<LoginScreen> {
-  final _phoneController = TextEditingController();
-  final _passwordController = TextEditingController();
-
-  void _login() async {
-    final result = await AuthService.login(
-      _phoneController.text,
-      _passwordController.text,
-    );
-    if (result) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => HomeScreen()),
-      );
-    } else {
-      // Обработка ошибки
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Ошибка авторизации')));
-    }
-  }
+class LoginScreen extends StatelessWidget {
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Авторизация')),
+      appBar: AppBar(title: const Text('Вход')),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
             TextField(
-              controller: _phoneController,
-              decoration: InputDecoration(labelText: 'Номер телефона'),
+              controller: emailController,
+              decoration: InputDecoration(labelText: 'Email'),
             ),
             TextField(
-              controller: _passwordController,
+              controller: passwordController,
               decoration: InputDecoration(labelText: 'Пароль'),
               obscureText: true,
             ),
             SizedBox(height: 20),
             ElevatedButton(
-              onPressed: _login,
-              child: Text('Войти'),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => RegistrationScreen()),
-                );
+              onPressed: () async {
+                try {
+                  await AuthService().signIn(emailController.text, passwordController.text);
+                  final user = await AuthService().getMe();
+                  Provider.of<AuthProvider>(context, listen: false).setUser(user);
+                  // Navigate to the main screen
+                } catch (e) {
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Ошибка: $e')));
+                }
               },
-              child: Text('Нет аккаунта? Зарегистрируйтесь'),
+              child: Text('Войти'),
             ),
           ],
         ),
