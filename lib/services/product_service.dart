@@ -9,6 +9,28 @@ class ProductService {
     return data.map((e) => Product.fromJson(e)).toList();
   }
 
+  Future<List<Product>> getAllByCategory(String categoryId) async {
+    final data = await _supabase
+        .from('products')
+        .select('*')
+        .eq('category_id', categoryId); // Fetch products by category ID
+    return data.map((e) => Product.fromJson(e)).toList();
+  }
+
+  Future<Product> getProductById(String productId) async {
+    final data = await _supabase
+        .from('products')
+        .select('*')
+        .eq('id', productId)
+        .single();
+
+    return Product.fromJson(data);
+  }
+
+  Future<void> createProduct(Product product) async {
+    await _supabase.from('products').insert(product.toJson());
+  }
+
   Future<void> create(Product product) async {
     await _supabase.from('products').insert(product.toJson());
   }
@@ -19,5 +41,14 @@ class ProductService {
 
   Future<void> delete(String id) async {
     await _supabase.from('products').delete().eq('id', id);
+  }
+
+  Future<int> getTotalStock() async {
+    final response = await _supabase
+        .from('products')
+        .select('sum(stock)') // Получаем сумму всех товаров на складе
+        .single();
+
+    return response['sum'] ?? 0; // Возвращаем общее количество на складе или 0, если данных нет
   }
 }
